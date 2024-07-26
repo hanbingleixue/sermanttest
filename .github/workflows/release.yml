@@ -17,11 +17,24 @@ jobs:
           milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/bug"
-          curl -sSL \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/bug" \
             > milestone-bug-issues.json
+      - name: Get Milestone Feature Issues
+        id: milestone-feature-issues
+        run: |
+          milestone_number=2.0.1
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
+            > milestone-feature-issues.json
+      - name: Get Milestone Enhancement Issues
+        id: milestone-enhancement-issues
+        run: |
+          milestone_number=2.0.1
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
+            > milestone-enhancement-issues.json
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
