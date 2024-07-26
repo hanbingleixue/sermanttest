@@ -18,21 +18,43 @@ jobs:
           milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}" \
-            > milestone-issues.json
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/bug" \
+            > milestone-bug-issues.json
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/enhancement" \
+            > milestone-enhancement-issues.json
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
+            > milestone-feature-issues.json
 
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
-          milestone_issues=$(cat milestone-issues.json)
-          cat milestone-issues.json
-          release_notes=""
-          for issue in $(echo "${milestone_issues}" | jq -r '.[] | @base64'); do
+          milestone-feature-issue=$(cat milestone-feature-issues.json)
+          release_notes="## ⭐ Feature"
+          for issue in $(echo "${milestone-feature-issue}" | jq -r '.[] | @base64'); do
             _jq() {
               echo ${issue} | base64 --decode | jq -r ${1}
             }
-            release_notes+="* $(_jq '.title') (#$(_jq '.number'))\n"
+            release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
           done
-          echo "::set-output name=release_notes::$release_notes"
+          milestone-enhancement-issues=$(cat milestone-enhancement-issues.json)
+          release_notes+="## 📈 Improvements"
+          for issue in $(echo "${milestone-enhancement-issues}" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo ${issue} | base64 --decode | jq -r ${1}
+            }
+            release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+          done
+          milestone-bug-issues=$(cat milestone-bug-issues.json)
+          release_notes+="## 🐞 Fixes"
+          for issue in $(echo "${milestone-bug-issues}" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo ${issue} | base64 --decode | jq -r ${1}
+            }
+            release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+          done
           echo "Generated Release Notes:"
           echo "$release_notes"
