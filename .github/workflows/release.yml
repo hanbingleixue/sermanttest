@@ -11,19 +11,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Get Milestone Issues
-        id: milestone-issues
+      - name: Get Milestone Bug Issues
+        id: milestone-bug-issues
         run: |
           milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/bug" \
             > milestone-bug-issues.json
+      - name: Get Milestone Enhancement Issues
+        id: milestone-issues
+        run: |
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/enhancement" \
             > milestone-enhancement-issues.json
+      - name: Get Milestone Feature Issues
+        id: milestone-feature-issues
+        run: |
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
