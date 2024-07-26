@@ -28,7 +28,6 @@ jobs:
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
             > milestone-feature-issues.json
-
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
