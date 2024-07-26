@@ -32,41 +32,41 @@ jobs:
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
-          milestone-feature-issue=$(cat milestone-feature-issues.json)
+          milestone-feature-issues=$(cat milestone-feature-issues.json)
           release_notes="## ⭐ Feature"
-          if [[ $(echo "${milestone-feature-issue}" | jq '. | length') -eq 0 ]]; then
+          if [[ $(echo "${milestone-feature-issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
-            for issue in $(echo "${milestone-feature-issue}" | jq -r '.[] | @base64'); do
+            for issue in $(echo "${milestone-feature-issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
               }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+              release_notes+="* $(_jq '.title') (#$(_jq '.number'))\n"
             done
           fi
-          milestone-enhancement-issues=$(cat milestone-enhancement-issues.json)
-          release_notes+="## 📈 Improvements"
-          if [[ $(echo "${milestone-enhancement-issue}" | jq '. | length') -eq 0 ]]; then
-            echo "返回值是空数组 []"
-          else
-            for issue in $(echo "${milestone-enhancement-issue}" | jq -r '.[] | @base64'); do
-              _jq() {
-                echo ${issue} | base64 --decode | jq -r ${1}
-              }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
-            done
-          fi
-          milestone-bug-issues=$(cat milestone-bug-issues.json)
-          release_notes+="## 🐞 Fixes"
-          if [[ $(echo "${milestone-bug-issue}" | jq '. | length') -eq 0 ]]; then
-            echo "返回值是空数组 []"
-          else
-            for issue in $(echo "${milestone-bug-issue}" | jq -r '.[] | @base64'); do
-              _jq() {
-                echo ${issue} | base64 --decode | jq -r ${1}
-              }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
-            done
-          fi
+#          milestone-enhancement-issues=$(cat milestone-enhancement-issues.json)
+#          release_notes+="## 📈 Improvements"
+#          if [[ $(echo "${milestone-enhancement-issues}" | jq '. | length') -eq 0 ]]; then
+#            echo "返回值是空数组 []"
+#          else
+#            for issue in $(echo "${milestone-enhancement-issues}" | jq -r '.[] | @base64'); do
+#              _jq() {
+#                echo ${issue} | base64 --decode | jq -r ${1}
+#              }
+#              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+#            done
+#          fi
+#          milestone-bug-issues=$(cat milestone-bug-issues.json)
+#          release_notes+="## 🐞 Fixes"
+#          if [[ $(echo "${milestone-bug-issues}" | jq '. | length') -eq 0 ]]; then
+#            echo "返回值是空数组 []"
+#          else
+#            for issue in $(echo "${milestone-bug-issues}" | jq -r '.[] | @base64'); do
+#              _jq() {
+#                echo ${issue} | base64 --decode | jq -r ${1}
+#              }
+#              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+#            done
+#          fi
           echo "Generated Release Notes:"
           echo "$release_notes"
