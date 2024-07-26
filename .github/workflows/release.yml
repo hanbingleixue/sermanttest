@@ -40,6 +40,7 @@ jobs:
         run: |
           cat milestone-feature-issues.json
           milestone-feature-issues=$(cat milestone-feature-issues.json)
+          echo "Generated Release Notes:"
           release_notes="## ⭐ Feature"
           echo "Generated Release Notes:"
           echo "$release_notes"
