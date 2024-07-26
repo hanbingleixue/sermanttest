@@ -22,6 +22,7 @@ jobs:
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
+          cat milestone-feature-issues.json
           milestone-feature-issues=$(cat milestone-feature-issues.json)
           release_notes="## ⭐ Feature"
           echo "Generated Release Notes:"
