@@ -24,6 +24,7 @@ jobs:
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
+          cat milestone-issues.json
           milestone_issues=$(cat milestone-issues.json)
           release_notes=""
           for issue in $(echo "${milestone_issues}" | jq -r '.[] | @base64'); do
