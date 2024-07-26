@@ -22,6 +22,7 @@ jobs:
       - name: Get Milestone Enhancement Issues
         id: milestone-issues
         run: |
+          milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/enhancement" \
@@ -29,6 +30,7 @@ jobs:
       - name: Get Milestone Feature Issues
         id: milestone-feature-issues
         run: |
+          milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
