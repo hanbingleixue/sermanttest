@@ -6,42 +6,32 @@ on:
       - '*'
 
 jobs:
-  generate-release-note:
+  generate-release-notes:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get latest commit and tag
-        id: git-info
+      - name: Get Milestone Issues
+        id: milestone-issues
         run: |
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-          latest_tag=$(git describe --tags --abbrev=0)
-          latest_commit=$(git rev-parse HEAD)
-          echo "::set-output name=tag::$latest_tag"
-          echo "::set-output name=commit::$latest_commit"
+          milestone_number=$(echo $GITHUB_EVENT_PATH | jq -r .number)
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?milestone=${milestone_number}" \
+            > milestone-issues.json
 
-      - name: Get closed issues since last tag
-        id: get-closed-issues
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: issues } = await github.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'closed',
-              since: '${{ steps.git-info.outputs.tag }}',
-              per_page: 10  // Adjust this number as needed
-            });
-            
-            const issueList = issues.map(issue => `- ${issue.title} (#${issue.number})`);
-            console.log(issueList.join('\n'));
-            core.setOutput('issueList', issueList.join('\n'));
-
-      - name: Generate release note
-        id: release-note
+      - name: Generate Release Notes
+        id: generate-release-notes
         run: |
-          echo "### Release Notes\n\n" > release-note.md
-          echo "${{ steps.get-closed-issues.outputs.issueList }}" >> release-note.md
-          cat release-note.md
+          milestone_issues=$(cat milestone-issues.json)
+          release_notes=""
+          for issue in $(echo "${milestone_issues}" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo ${issue} | base64 --decode | jq -r ${1}
+            }
+            release_notes+="* $(_jq '.title') (#$(_jq '.number'))\n"
+          done
+          echo "::set-output name=release_notes::$release_notes"
+          echo "Generated Release Notes:"
+          echo "$release_notes"
