@@ -40,6 +40,16 @@ jobs:
         run: |
           cat milestone-feature-issues.json
           milestone_feature_issues=$(cat milestone-feature-issues.json)
+          if [[ $(echo "${milestone_feature_issues}" | jq '. | length') -eq 0 ]]; then
+            echo "返回值是空数组 []"
+          else
+            for issue in $(echo "${milestone_feature_issues}" | jq -r '.[] | @base64'); do
+              _jq() {
+                echo ${issue} | base64 --decode | jq -r ${1}
+              }
+              release_notes+="* $(_jq '.title') (#$(_jq '.number'))\n"
+            done
+          fi
           echo "Generated Release Notes:"
           release_notes="## ⭐ Feature"
           echo "Generated Release Notes:"
