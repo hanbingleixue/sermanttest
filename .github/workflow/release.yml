@@ -1,0 +1,47 @@
+name: Generate Release Note
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  generate-release-note:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get latest commit and tag
+        id: git-info
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          latest_tag=$(git describe --tags --abbrev=0)
+          latest_commit=$(git rev-parse HEAD)
+          echo "::set-output name=tag::$latest_tag"
+          echo "::set-output name=commit::$latest_commit"
+
+      - name: Get closed issues since last tag
+        id: get-closed-issues
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: issues } = await github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              since: '${{ steps.git-info.outputs.tag }}',
+              per_page: 10  // Adjust this number as needed
+            });
+            
+            const issueList = issues.map(issue => `- ${issue.title} (#${issue.number})`);
+            console.log(issueList.join('\n'));
+            core.setOutput('issueList', issueList.join('\n'));
+
+      - name: Generate release note
+        id: release-note
+        run: |
+          echo "### Release Notes\n\n" > release-note.md
+          echo "${{ steps.get-closed-issues.outputs.issueList }}" >> release-note.md
+          cat release-note.md
