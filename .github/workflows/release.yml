@@ -38,6 +38,13 @@ jobs:
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=kind/enhancement" \
             > milestone-enhancement-issues.json
+      - name: Get Milestone Doc Issues
+        id: milestone-enhancement-issues
+        run: |
+          curl -sSL \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=area/docs" \
+            > milestone-doc-issues.json
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
@@ -72,6 +79,18 @@ jobs:
           else
             release_notes+="## 🐞 Fixes\n"
             for issue in $(echo "${milestone_bug_issues}" | jq -r '.[] | @base64'); do
+              _jq() {
+                echo ${issue} | base64 --decode | jq -r ${1}
+              }
+              release_notes+="- $(_jq '.title'). Issue #$(_jq '.number')\n"
+            done
+          fi
+          milestone_doc_issues=$(cat milestone-doc-issues.json)
+          if [[ $(echo "${milestone_doc_issues}" | jq '. | length') -eq 0 ]]; then
+            echo "没有标签为area/doc的Issue"
+          else
+            release_notes+="## 📔 Documentation\n"
+            for issue in $(echo "${milestone_doc_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
               }
