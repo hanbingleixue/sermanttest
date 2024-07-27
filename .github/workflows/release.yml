@@ -41,12 +41,12 @@ jobs:
       - name: Generate Release Notes
         id: generate-release-notes
         run: |
-          cat milestone-feature-issues.json
+          release_notes="";
           milestone_feature_issues=$(cat milestone-feature-issues.json)
-          release_notes="## ⭐ Feature\n"
           if [[ $(echo "${milestone_feature_issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
+            release_notes="## ⭐ Feature\n"
             for issue in $(echo "${milestone_feature_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
@@ -54,12 +54,11 @@ jobs:
               release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
             done
           fi
-          cat milestone-enhancement-issues.json
           milestone_enhancement_issues=$(cat milestone-enhancement-issues.json)
-          release_notes+="## 📈 Improvements\n"
           if [[ $(echo "${milestone_bug_issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
+            release_notes+="## 📈 Improvements\n"
             for issue in $(echo "${milestone_enhancement_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
@@ -67,12 +66,11 @@ jobs:
               release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
             done
           fi
-          cat milestone-enhancement-issues.json
           milestone_bug_issues=$(cat milestone-enhancement-issues.json)
-          release_notes+="## 🐞 Fixes\n"
           if [[ $(echo "${milestone_bug_issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
+            release_notes+="## 🐞 Fixes\n"
             for issue in $(echo "${milestone_bug_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
