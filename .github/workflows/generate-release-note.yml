@@ -39,7 +39,7 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=kind/enhancement" \
             > milestone-enhancement-issues.json
       - name: Get Milestone Doc Issues
-        id: milestone-enhancement-issues
+        id: milestone-doc-issues
         run: |
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
