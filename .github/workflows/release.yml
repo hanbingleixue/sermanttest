@@ -55,7 +55,7 @@ jobs:
             done
           fi
           milestone_enhancement_issues=$(cat milestone-enhancement-issues.json)
-          if [[ $(echo "${milestone_bug_issues}" | jq '. | length') -eq 0 ]]; then
+          if [[ $(echo "${milestone_enhancement_issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
             release_notes+="## 📈 Improvements\n"
@@ -66,7 +66,7 @@ jobs:
               release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
             done
           fi
-          milestone_bug_issues=$(cat milestone-enhancement-issues.json)
+          milestone_bug_issues=$(cat milestone-bug-issues.json)
           if [[ $(echo "${milestone_bug_issues}" | jq '. | length') -eq 0 ]]; then
             echo "返回值是空数组 []"
           else
