@@ -44,31 +44,31 @@ jobs:
           release_notes="";
           milestone_feature_issues=$(cat milestone-feature-issues.json)
           if [[ $(echo "${milestone_feature_issues}" | jq '. | length') -eq 0 ]]; then
-            echo "返回值是空数组 []"
+            echo "没有标签为kind/feature的Issue"
           else
             release_notes="## ⭐ Feature\n"
             for issue in $(echo "${milestone_feature_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
               }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+              release_notes+="- $(_jq '.title'). Issue #$(_jq '.number')\n"
             done
           fi
           milestone_enhancement_issues=$(cat milestone-enhancement-issues.json)
           if [[ $(echo "${milestone_enhancement_issues}" | jq '. | length') -eq 0 ]]; then
-            echo "返回值是空数组 []"
+            echo "没有标签为kind/enhancement的Issue"
           else
             release_notes+="## 📈 Improvements\n"
             for issue in $(echo "${milestone_enhancement_issues}" | jq -r '.[] | @base64'); do
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
               }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+              release_notes+="- $(_jq '.title'). Issue #$(_jq '.number')\n"
             done
           fi
           milestone_bug_issues=$(cat milestone-bug-issues.json)
           if [[ $(echo "${milestone_bug_issues}" | jq '. | length') -eq 0 ]]; then
-            echo "返回值是空数组 []"
+            echo "没有标签为kind/bug的Issue"
           else
             release_notes+="## 🐞 Fixes\n"
             for issue in $(echo "${milestone_bug_issues}" | jq -r '.[] | @base64'); do
