@@ -1,9 +1,15 @@
 name: Generate Release Note
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number to be generate release note this time'
+        required: true
+
+env:
+  version: ${{ inputs.version }}
+
 
 jobs:
   generate-release-notes:
@@ -14,26 +20,23 @@ jobs:
       - name: Get Milestone Bug Issues
         id: milestone-bug-issues
         run: |
-          milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/bug" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=kind/bug" \
             > milestone-bug-issues.json
       - name: Get Milestone Feature Issues
         id: milestone-feature-issues
         run: |
-          milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=kind/feature" \
             > milestone-feature-issues.json
       - name: Get Milestone Enhancement Issues
         id: milestone-enhancement-issues
         run: |
-          milestone_number=2.0.1
           curl -sSL \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${milestone_number}&labels=kind/feature" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?q=milestone=${{ env.version }}&labels=kind/enhancement" \
             > milestone-enhancement-issues.json
       - name: Generate Release Notes
         id: generate-release-notes
@@ -74,7 +77,7 @@ jobs:
               _jq() {
                 echo ${issue} | base64 --decode | jq -r ${1}
               }
-              release_notes+="- $(_jq '.title') (#$(_jq '.number'))\n"
+              release_notes+="- $(_jq '.title'). Issue #$(_jq '.number')\n"
             done
           fi
           echo "Generated Release Notes:"
